@@ -69,11 +69,9 @@
       </div>
     </div>
 
-    <!-- =========================
-         ROUTES INLINE (no templates)
-         ========================= -->
+    <!-- ROUTES INLINE (Gallery visible by default) -->
     <main id="stage" class="stage" tabindex="-1" aria-live="polite">
-      <!-- GALLERY (default visible) -->
+      <!-- GALLERY -->
       <section class="panel gallery" data-route="gallery">
         <header class="hero">
           <h1 id="hero-title">Micro-Interactions, Natively</h1>
@@ -175,12 +173,13 @@
     </main>
 
     <footer class="foot" role="contentinfo">
-      <p>Built with the <strong>View Transitions API</strong> •
+      <p>Built with the <strong>View Transitions API</strong> • <span>Build v3</span> •
         <a target="_blank" rel="noreferrer noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API">Docs</a>
       </p>
     </footer>
   </div>
 
-  <script src="./app.js" type="module"></script>
+  <!-- Note: not a module so it runs on older setups -->
+  <script src="./app.js"></script>
 </body>
 </html>
