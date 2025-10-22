@@ -1,4 +1,4 @@
-/* Velocité — inline routes, ES5-safe, polished */
+/* Velocité — inline routes, ES5-safe, with full-card click + better back links */
 
 (function () {
   var state = {
@@ -28,7 +28,7 @@
       });
     }
 
-    // Global ESC to close drawer or toast
+    // Global ESC
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') {
         var d = document.getElementById('drawer');
@@ -38,17 +38,32 @@
       }
     });
 
-    // Route links (buttons/anchors)
+    // Route links (click)
     document.addEventListener('click', function (e) {
       var link = e.target && e.target.closest ? e.target.closest('[data-route-link]') : null;
       if (!link) return;
+
+      // allow "focus" button to do its own thing
+      if (link.matches('[data-action="focus-card"]')) return;
+
       var route = link.getAttribute('data-route-link');
       if (!route) return;
       e.preventDefault();
       go(route);
     });
 
-    // Hash support (optional)
+    // Route links (keyboard on focusable cards)
+    document.addEventListener('keydown', function (e) {
+      var target = e.target;
+      if (!target || !target.matches('[data-route-link]')) return;
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        var route = target.getAttribute('data-route-link');
+        if (route) go(route);
+      }
+    });
+
+    // Hash support
     window.addEventListener('hashchange', function () {
       var route = routeFromHash() || 'gallery';
       go(route, { useVT: true });
