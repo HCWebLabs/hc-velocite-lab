@@ -10,7 +10,6 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Display + body pair -->
   <link href="https://fonts.googleapis.com/css2?family=Bakbak+One&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./styles.css" />
@@ -21,14 +20,17 @@
       <button id="open-menu" class="icon ghost" title="Open menu">
         <i class="fa-solid fa-bars"></i><span class="sr-only">Open menu</span>
       </button>
+
       <a class="brand" href="#/gallery" data-link>
         <i class="fa-solid fa-bolt"></i>
         <span class="brand-name">Velocité</span>
       </a>
+
       <nav class="topnav" aria-label="Primary">
         <a href="#/gallery" data-link class="is-active">Gallery</a>
         <a href="#/about" data-link>About</a>
       </nav>
+
       <div class="tools">
         <button id="motion-toggle" class="ghost" aria-pressed="true" title="Toggle motion">
           <i class="fa-solid fa-wand-magic-sparkles"></i><span class="label">Motion: On</span>
@@ -39,7 +41,7 @@
       </div>
     </header>
 
-    <!-- Side menu (pattern demo & site menu) -->
+    <!-- Drawer / command menu -->
     <aside id="drawer" class="drawer" aria-label="Command menu" hidden>
       <div class="drawer__backdrop" data-close></div>
       <div class="drawer__sheet" role="dialog" aria-modal="true" tabindex="-1">
@@ -58,7 +60,7 @@
       </div>
     </aside>
 
-    <!-- Toast (site-wide) -->
+    <!-- Toast -->
     <div id="toast" class="toast" role="status" aria-live="polite" hidden>
       <div class="toast__bubble">
         <i class="fa-regular fa-circle-check"></i>
@@ -67,10 +69,14 @@
       </div>
     </div>
 
-    <main id="stage" class="stage" tabindex="-1" aria-live="polite" aria-busy="false"></main>
+    <main id="stage" class="stage" tabindex="-1" aria-live="polite" aria-busy="false">
+      <!-- JS injects route content here -->
+    </main>
 
     <footer class="foot" role="contentinfo">
-      <p>Built with the <strong>View Transitions API</strong> • <a target="_blank" rel="noreferrer noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API">Docs</a></p>
+      <p>Built with the <strong>View Transitions API</strong> •
+        <a target="_blank" rel="noreferrer noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API">Docs</a>
+      </p>
     </footer>
   </div>
 
@@ -79,13 +85,12 @@
     <section data-route="gallery" class="panel gallery">
       <header class="hero">
         <h1 id="hero-title">Micro-Interactions, Natively</h1>
-        <p class="lede">Tap a pattern to see a small but delightful transition. All effects are **native** — no animation libraries.</p>
+        <p class="lede">Tap a pattern to see a small but delightful transition. All effects are native — no animation libraries.</p>
       </header>
 
       <div class="grid cards">
-        <!-- Card morph demo target (shared element name "demo-card") -->
         <article id="demo-card" class="card loud">
-          <img class="card__img" src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1200&auto=format&fit=crop" alt="" />
+          <img class="card__img" src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1200&auto=format&fit=crop" alt="">
           <h3>Card morph</h3>
           <p>Click to expand into a detail view with shared image/title.</p>
           <div class="row">
@@ -129,10 +134,9 @@
     </section>
   </template>
 
-  <!-- Pattern: Card morph -->
   <template id="tpl-pattern-card">
     <section class="panel pattern-card">
-      <button class="ghost back" data-link href="#/gallery"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      <a class="ghost back" data-link href="#/gallery"><i class="fa-solid fa-arrow-left"></i> Back</a>
       <article id="demo-card" class="detail">
         <img class="card__img" src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1600&auto=format&fit=crop" alt="">
         <div class="detail__body">
@@ -144,16 +148,13 @@
     </section>
   </template>
 
-  <!-- Pattern: Menu (drawer) -->
   <template id="tpl-pattern-menu">
     <section class="panel pattern-menu">
       <h2>Command Menu</h2>
-      <p>Use the menu button in the header. The **backdrop** and **sheet** have named view-transition regions.</p>
-      <p><em>Tip:</em> Toggle Motion to compare.</p>
+      <p>Use the menu button in the header. The backdrop and sheet have named view-transition regions.</p>
     </section>
   </template>
 
-  <!-- Pattern: Toast -->
   <template id="tpl-pattern-toast">
     <section class="panel pattern-toast">
       <h2>Toast</h2>
@@ -162,7 +163,6 @@
     </section>
   </template>
 
-  <!-- Pattern: Tabs (partial swap) -->
   <template id="tpl-pattern-tabs">
     <section class="panel pattern-tabs">
       <h2>Tabs</h2>
