@@ -1,90 +1,90 @@
-/* Velocité — Robust router + patterns */
-
-const stage = document.querySelector('#stage');
-const topnavLinks = () => Array.from(document.querySelectorAll('.topnav a[data-link]'));
-
-const routes = {
-  '/gallery': '#tpl-gallery',
-  '/about': '#tpl-about',
-  '/pattern/card': '#tpl-pattern-card',
-  '/pattern/menu': '#tpl-pattern-menu',
-  '/pattern/toast': '#tpl-pattern-toast',
-  '/pattern/tabs': '#tpl-pattern-tabs',
-};
+/* Velocité — Inline routes + dependable nav */
 
 const state = {
   motion: JSON.parse(localStorage.getItem('vx.motion') ?? 'true'),
   hasVT: 'startViewTransition' in document,
+  current: null
 };
+
+const stage = document.querySelector('#stage');
 
 /* ---------- Init ---------- */
 init();
 
 function init(){
-  // Ensure we start on a valid route
-  if (!routes[getPath()]) location.hash = '#/gallery';
-  render(); // immediate first paint
-
-  // Delegated link handling (always prevent default and set hash)
-  document.addEventListener('click', (e) => {
-    const link = e.target.closest('[data-link]');
-    if (!link) return;
-    const href = link.getAttribute('href');
-    if (!href || !href.startsWith('#/')) return;
-    e.preventDefault();
-    if (location.hash === href) return; // no-op
-    location.hash = href; // hashchange will render
-  });
-
-  // Hash-based routing with optional VT wrapper
-  window.addEventListener('hashchange', () => {
-    if (state.hasVT && state.motion){
-      document.startViewTransition(render);
-    } else {
-      render();
-    }
-  });
-
-  // Header controls
+  // Wire header controls
   document.querySelector('#motion-toggle')?.addEventListener('click', toggleMotion);
   document.querySelector('#push-toast')?.addEventListener('click', showToast);
 
-  // Drawer hooks
+  // Drawer
   document.querySelector('#open-menu')?.addEventListener('click', openDrawer);
   document.querySelector('#close-menu')?.addEventListener('click', closeDrawer);
-  document.querySelector('#drawer')?.addEventListener('click', (e) => {
-    if (e.target.matches('[data-close]')) closeDrawer();
+  document.querySelector('#drawer')?.addEventListener('click', (e)=>{ if (e.target.matches('[data-close]')) closeDrawer(); });
+
+  // Route links (buttons/anchors) — delegate clicks
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('[data-route-link]');
+    if (!link) return;
+    const route = link.getAttribute('data-route-link');
+    e.preventDefault();
+    go(route);
   });
+
+  // Hash support (optional, so browser back works)
+  window.addEventListener('hashchange', () => {
+    const route = routeFromHash() || 'gallery';
+    go(route, {useVT:true});
+  });
+
+  // Initial route
+  const initial = routeFromHash() || 'gallery';
+  go(initial, {useVT:false});
 
   updateMotionUI();
 }
 
-/* ---------- Render ---------- */
-function getPath(){
-  const h = (location.hash || '#/gallery').slice(1); // remove '#'
-  return h || '/gallery';
+/* ---------- Routing ---------- */
+function routeFromHash(){
+  const h = location.hash.trim();
+  if (!h.startsWith('#/')) return null;
+  return h.slice(2); // "#/gallery" -> "gallery"
 }
 
-function render(){
-  const path = getPath();
-  const tplSel = routes[path] || routes['/gallery'];
-  const tpl = document.querySelector(tplSel);
-  if (!tpl) return;
+function go(route, opts={useVT:true}){
+  // normalize URL hash for shareability
+  if (location.hash !== `#/${route}`) {
+    history.replaceState(null, '', `#/${route}`);
+  }
 
-  stage.setAttribute('aria-busy', 'true');
-  stage.replaceChildren(tpl.content.cloneNode(true));
-  stage.setAttribute('aria-busy', 'false');
+  const prev = state.current;
+  const next = document.querySelector(`[data-route="${route}"]`);
+  if (!next) return;
 
-  // set nav active state
-  topnavLinks().forEach(a => a.classList.toggle('is-active', a.getAttribute('href').slice(1) === path));
+  const swap = () => {
+    // hide all, show next
+    document.querySelectorAll('[data-route]').forEach(sec => {
+      if (sec === next) { sec.hidden = false; } else { sec.hidden = true; }
+    });
 
-  // attach per-view hooks
-  wireGallery();
-  wireTabs();
-  wireToastPattern();
+    // topnav active state
+    document.querySelectorAll('.topnav [data-route-link]').forEach(a => {
+      a.classList.toggle('is-active', a.getAttribute('data-route-link') === route);
+    });
 
-  // focus main for a11y
-  requestAnimationFrame(() => stage.focus({ preventScroll: true }));
+    // per-view hooks
+    wireGallery();
+    wireTabs();
+    wireToastPattern();
+
+    state.current = route;
+    stage.focus({ preventScroll:true });
+  };
+
+  if (state.hasVT && state.motion && opts.useVT && prev !== route){
+    document.startViewTransition(swap);
+  } else {
+    swap();
+  }
 }
 
 /* ---------- Motion toggle ---------- */
@@ -138,14 +138,14 @@ function wireToastPattern(){
 
 /* ---------- Gallery niceties ---------- */
 function wireGallery(){
-  const btn = stage.querySelector('[data-action="focus-card"]');
-  const card = stage.querySelector('#demo-card');
+  const btn = document.querySelector('[data-action="focus-card"]');
+  const card = document.querySelector('[data-route="gallery"] #demo-card');
   btn?.addEventListener('click', () => card?.scrollIntoView({ behavior:'smooth', block:'center' }));
 }
 
 /* ---------- Tabs (partial swap) ---------- */
 function wireTabs(){
-  const tabs = stage.querySelector('.tabs');
+  const tabs = document.querySelector('[data-route="pattern-tabs"] .tabs');
   if (!tabs) return;
 
   const list = tabs.querySelector('.tabs__list');
@@ -176,4 +176,3 @@ function wireTabs(){
     }
   });
 }
-
