@@ -10,8 +10,8 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <!-- Sansation (Bold) for H1 + Mulish for UI -->
-  <link href="https://fonts.googleapis.com/css2?family=Sansation:wght@700&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Sansation (Bold) + Mulish -->
+  <link href="https://fonts.googleapis.com/css2?family=Sansation:wght@700;900&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./styles.css" />
 </head>
@@ -80,7 +80,8 @@
         </header>
 
         <div class="grid cards">
-          <article id="demo-card" class="card loud">
+          <!-- FULL-CARD CLICK to pattern-card -->
+          <article id="demo-card" class="card loud" data-route-link="pattern-card" tabindex="0" aria-label="Open Card morph pattern">
             <img class="card__img"
                  src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1200&auto=format&fit=crop"
                  alt=""
@@ -88,24 +89,24 @@
             <h3>Card morph</h3>
             <p>Click to expand into a detail view with shared image/title.</p>
             <div class="row">
-              <button class="cta" data-route-link="pattern-card">Open</button>
               <button class="ghost" data-action="focus-card">Focus</button>
+              <button class="cta" data-route-link="pattern-card">Open</button>
             </div>
           </article>
 
-          <article class="card">
+          <article class="card" data-route-link="pattern-menu" tabindex="0" aria-label="Open Command menu pattern">
             <h3>Command menu</h3>
             <p>Slide a drawer over a blurred backdrop. Try the top-left menu icon.</p>
             <button class="cta ghost" data-route-link="pattern-menu">Show pattern</button>
           </article>
 
-          <article class="card">
+          <article class="card" data-route-link="pattern-toast" tabindex="0" aria-label="Open Toast pattern">
             <h3>Toast</h3>
             <p>A tiny, classy status bubble that enters/exits with VT.</p>
             <button class="cta ghost" data-route-link="pattern-toast">Show pattern</button>
           </article>
 
-          <article class="card">
+          <article class="card" data-route-link="pattern-tabs" tabindex="0" aria-label="Open Tabs pattern">
             <h3>Tabs (partial swap)</h3>
             <p>Only the tab panel transitions; the rest of the page stays anchored.</p>
             <button class="cta ghost" data-route-link="pattern-tabs">Show pattern</button>
@@ -128,7 +129,10 @@
 
       <!-- PATTERN: CARD -->
       <section class="panel pattern-card" data-route="pattern-card" hidden>
-        <button class="ghost back" data-route-link="gallery"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <div class="panel-head">
+          <button class="ghost back" data-route-link="gallery"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button class="cta ghost" data-route-link="gallery">Close</button>
+        </div>
         <article id="demo-card" class="detail">
           <img class="card__img"
                src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1600&auto=format&fit=crop"
@@ -137,26 +141,42 @@
           <div class="detail__body">
             <h2>Shared-Element Morph</h2>
             <p>The grid card’s image/title share transition names with the detail view, so they scale and crossfade smoothly.</p>
-            <p><button class="cta" data-route-link="gallery">Close</button></p>
+            <p><button class="cta" data-route-link="gallery">Back to Gallery</button></p>
           </div>
         </article>
       </section>
 
       <!-- PATTERN: MENU -->
       <section class="panel pattern-menu" data-route="pattern-menu" hidden>
+        <div class="panel-head">
+          <button class="ghost back" data-route-link="gallery"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button class="cta ghost" data-route-link="gallery">Close</button>
+        </div>
         <h2>Command Menu</h2>
         <p>Use the menu button in the header. The backdrop and sheet have named view-transition regions.</p>
+        <p><button class="cta" data-route-link="gallery">Back to Gallery</button></p>
       </section>
 
       <!-- PATTERN: TOAST -->
       <section class="panel pattern-toast" data-route="pattern-toast" hidden>
+        <div class="panel-head">
+          <button class="ghost back" data-route-link="gallery"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button class="cta ghost" data-route-link="gallery">Close</button>
+        </div>
         <h2>Toast</h2>
         <p>Press the bell icon to show a toast. It enters/exits with a small shared element animation.</p>
-        <button id="show-toast" class="cta"><i class="fa-regular fa-bell"></i> Show toast</button>
+        <p class="row">
+          <button id="show-toast" class="cta"><i class="fa-regular fa-bell"></i> Show toast</button>
+          <button class="cta ghost" data-route-link="gallery">Back to Gallery</button>
+        </p>
       </section>
 
       <!-- PATTERN: TABS -->
       <section class="panel pattern-tabs" data-route="pattern-tabs" hidden>
+        <div class="panel-head">
+          <button class="ghost back" data-route-link="gallery"><i class="fa-solid fa-arrow-left"></i> Back</button>
+          <button class="cta ghost" data-route-link="gallery">Close</button>
+        </div>
         <h2>Tabs</h2>
         <div class="tabs" id="tabs">
           <div class="tabs__list" role="tablist" aria-label="Demo tabs">
@@ -176,17 +196,18 @@
             </section>
           </div>
         </div>
+        <p><button class="cta" data-route-link="gallery">Back to Gallery</button></p>
       </section>
     </main>
 
     <footer class="foot" role="contentinfo">
-      <p>Built with the <strong>View Transitions API</strong> • <span>Build v4</span> •
+      <p>Built with the <strong>View Transitions API</strong> • <span>Build v5</span> •
         <a target="_blank" rel="noreferrer noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API">Docs</a>
       </p>
     </footer>
   </div>
 
-  <!-- Not a module → runs everywhere, even file:// -->
+  <!-- Not a module → runs everywhere -->
   <script src="./app.js"></script>
 </body>
 </html>
