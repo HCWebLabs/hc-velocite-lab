@@ -10,7 +10,8 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bakbak+One&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Sansation (Bold) for H1 + Mulish for UI -->
+  <link href="https://fonts.googleapis.com/css2?family=Sansation:wght@700&family=Mulish:wght@400;600;700;800&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./styles.css" />
 </head>
@@ -27,7 +28,7 @@
       </a>
 
       <nav class="topnav" aria-label="Primary">
-        <a href="#/gallery" data-route-link="gallery" class="is-active">Gallery</a>
+        <a href="#/gallery" data-route-link="gallery" class="is-active" aria-current="page">Gallery</a>
         <a href="#/about" data-route-link="about">About</a>
       </nav>
 
@@ -80,7 +81,10 @@
 
         <div class="grid cards">
           <article id="demo-card" class="card loud">
-            <img class="card__img" src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1200&auto=format&fit=crop" alt="">
+            <img class="card__img"
+                 src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1200&auto=format&fit=crop"
+                 alt=""
+                 loading="lazy" decoding="async" fetchpriority="low" />
             <h3>Card morph</h3>
             <p>Click to expand into a detail view with shared image/title.</p>
             <div class="row">
@@ -126,7 +130,10 @@
       <section class="panel pattern-card" data-route="pattern-card" hidden>
         <button class="ghost back" data-route-link="gallery"><i class="fa-solid fa-arrow-left"></i> Back</button>
         <article id="demo-card" class="detail">
-          <img class="card__img" src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1600&auto=format&fit=crop" alt="">
+          <img class="card__img"
+               src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1600&auto=format&fit=crop"
+               alt=""
+               loading="eager" decoding="async" fetchpriority="high" />
           <div class="detail__body">
             <h2>Shared-Element Morph</h2>
             <p>The grid card’s image/title share transition names with the detail view, so they scale and crossfade smoothly.</p>
@@ -173,13 +180,13 @@
     </main>
 
     <footer class="foot" role="contentinfo">
-      <p>Built with the <strong>View Transitions API</strong> • <span>Build v3</span> •
+      <p>Built with the <strong>View Transitions API</strong> • <span>Build v4</span> •
         <a target="_blank" rel="noreferrer noopener" href="https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API">Docs</a>
       </p>
     </footer>
   </div>
 
-  <!-- Note: not a module so it runs on older setups -->
+  <!-- Not a module → runs everywhere, even file:// -->
   <script src="./app.js"></script>
 </body>
 </html>
