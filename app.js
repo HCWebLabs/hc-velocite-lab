@@ -1,190 +1,179 @@
-/* Velocité — View Transition micro-patterns */
+/* Velocité — Robust router + patterns */
 
-const Vx = (() => {
-  const stage = document.querySelector('#stage');
-  const motionBtn = document.querySelector('#motion-toggle');
-  const toastBtn = document.querySelector('#push-toast');
-  const openMenuBtn = document.querySelector('#open-menu');
-  const drawer = document.querySelector('#drawer');
-  const closeMenuBtn = document.querySelector('#close-menu');
-  const toast = document.querySelector('#toast');
+const stage = document.querySelector('#stage');
+const topnavLinks = () => Array.from(document.querySelectorAll('.topnav a[data-link]'));
 
-  const routes = {
-    '/gallery': '#tpl-gallery',
-    '/about': '#tpl-about',
-    '/pattern/card': '#tpl-pattern-card',
-    '/pattern/menu': '#tpl-pattern-menu',
-    '/pattern/toast': '#tpl-pattern-toast',
-    '/pattern/tabs': '#tpl-pattern-tabs',
-  };
+const routes = {
+  '/gallery': '#tpl-gallery',
+  '/about': '#tpl-about',
+  '/pattern/card': '#tpl-pattern-card',
+  '/pattern/menu': '#tpl-pattern-menu',
+  '/pattern/toast': '#tpl-pattern-toast',
+  '/pattern/tabs': '#tpl-pattern-tabs',
+};
 
-  const state = {
-    motion: JSON.parse(localStorage.getItem('vx.motion') ?? 'true'),
-    hasVT: 'startViewTransition' in document,
-  };
+const state = {
+  motion: JSON.parse(localStorage.getItem('vx.motion') ?? 'true'),
+  hasVT: 'startViewTransition' in document,
+};
 
-  function init(){
-    updateMotionUI();
+/* ---------- Init ---------- */
+init();
 
-    if (!location.hash) location.hash = '#/gallery';
-    renderFromHash({ useVT:false });
+function init(){
+  // Ensure we start on a valid route
+  if (!routes[getPath()]) location.hash = '#/gallery';
+  render(); // immediate first paint
 
-    document.addEventListener('click', onNavClick);
-    window.addEventListener('hashchange', () => renderFromHash({ useVT:true }));
+  // Delegated link handling (always prevent default and set hash)
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('[data-link]');
+    if (!link) return;
+    const href = link.getAttribute('href');
+    if (!href || !href.startsWith('#/')) return;
+    e.preventDefault();
+    if (location.hash === href) return; // no-op
+    location.hash = href; // hashchange will render
+  });
 
-    // Motion toggle
-    motionBtn?.addEventListener('click', () => {
-      state.motion = !state.motion;
-      localStorage.setItem('vx.motion', JSON.stringify(state.motion));
-      updateMotionUI();
-    });
-
-    // Global toast trigger
-    toastBtn?.addEventListener('click', () => showToast());
-
-    // Drawer
-    openMenuBtn?.addEventListener('click', openDrawer);
-    closeMenuBtn?.addEventListener('click', closeDrawer);
-    drawer?.addEventListener('click', (e) => { if (e.target.matches('[data-close]')) closeDrawer(); });
-
-    // Toast dismiss
-    toast?.querySelector('.toast__close')?.addEventListener('click', () => hideToast());
-  }
-
-  function updateMotionUI(){
-    motionBtn?.setAttribute('aria-pressed', String(state.motion));
-    motionBtn?.querySelector('.label')?.textContent = `Motion: ${state.motion ? 'On' : 'Off'}`;
-    document.documentElement.classList.toggle('motion-off', !state.motion);
-  }
-
-  // ---------- Routing ----------
-  function onNavClick(e){
-    const a = e.target.closest('a[data-link]');
-    const b = e.target.closest('button[data-link]'); // back button in card pattern
-    const linkEl = a || b;
-    if (!linkEl) return;
-
-    // normalize active in topnav
-    const href = linkEl.getAttribute('href');
-    document.querySelectorAll('.topnav a').forEach(n => n.classList.toggle('is-active', n.getAttribute('href') === href));
-
+  // Hash-based routing with optional VT wrapper
+  window.addEventListener('hashchange', () => {
     if (state.hasVT && state.motion){
-      e.preventDefault();
-      const targetHash = href;
-      document.startViewTransition(() => { location.hash = targetHash; });
-      return;
+      document.startViewTransition(render);
+    } else {
+      render();
     }
-  }
+  });
 
-  function renderFromHash({ useVT } = { useVT:true }){
-    const path = (location.hash || '#/gallery').replace('#','');
-    const tplSel = routes[path] || routes['/gallery'];
-    const tpl = document.querySelector(tplSel);
-    if (!tpl) return;
+  // Header controls
+  document.querySelector('#motion-toggle')?.addEventListener('click', toggleMotion);
+  document.querySelector('#push-toast')?.addEventListener('click', showToast);
 
-    stage.setAttribute('aria-busy', 'true');
+  // Drawer hooks
+  document.querySelector('#open-menu')?.addEventListener('click', openDrawer);
+  document.querySelector('#close-menu')?.addEventListener('click', closeDrawer);
+  document.querySelector('#drawer')?.addEventListener('click', (e) => {
+    if (e.target.matches('[data-close]')) closeDrawer();
+  });
+
+  updateMotionUI();
+}
+
+/* ---------- Render ---------- */
+function getPath(){
+  const h = (location.hash || '#/gallery').slice(1); // remove '#'
+  return h || '/gallery';
+}
+
+function render(){
+  const path = getPath();
+  const tplSel = routes[path] || routes['/gallery'];
+  const tpl = document.querySelector(tplSel);
+  if (!tpl) return;
+
+  stage.setAttribute('aria-busy', 'true');
+  stage.replaceChildren(tpl.content.cloneNode(true));
+  stage.setAttribute('aria-busy', 'false');
+
+  // set nav active state
+  topnavLinks().forEach(a => a.classList.toggle('is-active', a.getAttribute('href').slice(1) === path));
+
+  // attach per-view hooks
+  wireGallery();
+  wireTabs();
+  wireToastPattern();
+
+  // focus main for a11y
+  requestAnimationFrame(() => stage.focus({ preventScroll: true }));
+}
+
+/* ---------- Motion toggle ---------- */
+function toggleMotion(){
+  state.motion = !state.motion;
+  localStorage.setItem('vx.motion', JSON.stringify(state.motion));
+  updateMotionUI();
+}
+function updateMotionUI(){
+  const btn = document.querySelector('#motion-toggle');
+  btn?.setAttribute('aria-pressed', String(state.motion));
+  btn?.querySelector('.label')?.textContent = `Motion: ${state.motion ? 'On' : 'Off'}`;
+}
+
+/* ---------- Drawer ---------- */
+function openDrawer(){
+  const drawer = document.querySelector('#drawer');
+  if (!drawer) return;
+  const show = () => { drawer.hidden = false; drawer.querySelector('.drawer__sheet')?.focus({ preventScroll:true }); };
+  if (state.hasVT && state.motion){ document.startViewTransition(show); } else { show(); }
+}
+function closeDrawer(){
+  const drawer = document.querySelector('#drawer');
+  if (!drawer) return;
+  const hide = () => { drawer.hidden = true; };
+  if (state.hasVT && state.motion){ document.startViewTransition(hide); } else { hide(); }
+}
+
+/* ---------- Toast (global + pattern page) ---------- */
+let toastTimer = null;
+function showToast(){
+  const toast = document.querySelector('#toast');
+  if (!toast) return;
+  const show = () => {
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => hideToast(), 2400);
+  };
+  if (state.hasVT && state.motion){ document.startViewTransition(show); } else { show(); }
+}
+function hideToast(){
+  const toast = document.querySelector('#toast');
+  if (!toast) return;
+  const hide = () => { toast.hidden = true; };
+  if (state.hasVT && state.motion){ document.startViewTransition(hide); } else { hide(); }
+}
+function wireToastPattern(){
+  document.querySelector('#show-toast')?.addEventListener('click', showToast);
+  document.querySelector('.toast__close')?.addEventListener('click', hideToast);
+}
+
+/* ---------- Gallery niceties ---------- */
+function wireGallery(){
+  const btn = stage.querySelector('[data-action="focus-card"]');
+  const card = stage.querySelector('#demo-card');
+  btn?.addEventListener('click', () => card?.scrollIntoView({ behavior:'smooth', block:'center' }));
+}
+
+/* ---------- Tabs (partial swap) ---------- */
+function wireTabs(){
+  const tabs = stage.querySelector('.tabs');
+  if (!tabs) return;
+
+  const list = tabs.querySelector('.tabs__list');
+  list.addEventListener('click', (e) => {
+    const btn = e.target.closest('[role="tab"]');
+    if (!btn) return;
+
+    const current = list.querySelector('[aria-selected="true"]');
+    if (current === btn) return;
+
+    const nextId = btn.getAttribute('aria-controls');
+    const next = tabs.querySelector('#'+nextId);
+    const prev = tabs.querySelector('.tabs__panel.is-active');
 
     const swap = () => {
-      stage.replaceChildren(tpl.content.cloneNode(true));
-      requestAnimationFrame(() => {
-        stage.focus({ preventScroll: true });
-        stage.setAttribute('aria-busy', 'false');
-        // attach pattern-specific hooks
-        wireGalleryEnhancements();
-        wireTabs();
-        wireToastPattern();
-      });
+      current?.setAttribute('aria-selected', 'false');
+      btn.setAttribute('aria-selected', 'true');
+      prev?.setAttribute('hidden', '');
+      prev?.classList.remove('is-active');
+      next?.removeAttribute('hidden');
+      next?.classList.add('is-active');
     };
 
-    if (state.hasVT && state.motion && useVT){
+    if (state.hasVT && state.motion){
       document.startViewTransition(swap);
     } else {
       swap();
     }
-  }
+  });
+}
 
-  // ---------- Patterns ----------
-
-  // Card morph: focus button scrolls into view; clicking the CTA triggers route change (handled in onNavClick)
-  function wireGalleryEnhancements(){
-    const btn = stage.querySelector('[data-action="focus-card"]');
-    const card = stage.querySelector('#demo-card');
-    if (btn && card){
-      btn.addEventListener('click', () => card.scrollIntoView({ behavior: 'smooth', block: 'center' }));
-    }
-  }
-
-  // Tabs: partial swap only inside the panels container
-  function wireTabs(){
-    const tabs = stage.querySelector('.tabs');
-    if (!tabs) return;
-
-    const list = tabs.querySelector('.tabs__list');
-    const panels = tabs.querySelectorAll('.tabs__panel');
-
-    list.addEventListener('click', (e) => {
-      const btn = e.target.closest('[role="tab"]');
-      if (!btn) return;
-
-      const current = list.querySelector('[aria-selected="true"]');
-      if (current === btn) return;
-
-      const nextId = btn.getAttribute('aria-controls');
-      const next = tabs.querySelector('#'+nextId);
-      const prev = tabs.querySelector('.tabs__panel.is-active');
-
-      const doSwap = () => {
-        // update aria & hidden
-        current?.setAttribute('aria-selected', 'false');
-        btn.setAttribute('aria-selected', 'true');
-        prev?.setAttribute('hidden', '');
-        prev?.classList.remove('is-active');
-        next?.removeAttribute('hidden');
-        next?.classList.add('is-active');
-      };
-
-      if (state.hasVT && state.motion){
-        // scope the transition to the panel area by naming the viewport & panels in CSS
-        document.startViewTransition(doSwap);
-      } else {
-        doSwap();
-      }
-    });
-  }
-
-  // Toast show/hide
-  let toastTimer = null;
-  function showToast(){
-    if (!toast) return;
-    const show = () => {
-      toast.hidden = false;
-      clearTimeout(toastTimer);
-      toastTimer = setTimeout(hideToast, 2400);
-    };
-    if (state.hasVT && state.motion){ document.startViewTransition(show); } else { show(); }
-  }
-  function hideToast(){
-    if (!toast) return;
-    const hide = () => { toast.hidden = true; };
-    if (state.hasVT && state.motion){ document.startViewTransition(hide); } else { hide(); }
-  }
-
-  // Drawer open/close
-  function openDrawer(){
-    if (!drawer) return;
-    const show = () => {
-      drawer.hidden = false;
-      drawer.querySelector('.drawer__sheet')?.focus({ preventScroll: true });
-    };
-    if (state.hasVT && state.motion){ document.startViewTransition(show); } else { show(); }
-  }
-  function closeDrawer(){
-    if (!drawer) return;
-    const hide = () => { drawer.hidden = true; };
-    if (state.hasVT && state.motion){ document.startViewTransition(hide); } else { hide(); }
-  }
-
-  return { init };
-})();
-
-Vx.init();
