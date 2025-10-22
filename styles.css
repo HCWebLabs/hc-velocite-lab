@@ -1,4 +1,3 @@
-/* ===== Base ===== */
 :root{
   --bg:#0b0e14; --ink:#e9eef7; --muted:#b9c2d6; --line:#223;
   --aqua:#53e2f5; --vio:#a56cff; --hot:#ff7ad9;
@@ -10,7 +9,6 @@
 body{ margin:0; background:var(--bg); color:var(--ink); font:400 16px/1.6 "Mulish", system-ui, -apple-system, Segoe UI, Roboto, sans-serif }
 a{ color:inherit; text-decoration:none }
 
-/* velvet backdrop */
 body::before{
   content:""; position:fixed; inset:-20vmax; z-index:-1; pointer-events:none;
   background:
@@ -20,7 +18,6 @@ body::before{
   filter:saturate(110%) contrast(105%);
 }
 
-/* Layout */
 #vx .mast, #vx .stage, #vx .foot{ max-width:var(--max); margin:auto; padding:var(--pad) }
 #vx .mast{
   position:sticky; top:0; z-index:20;
@@ -70,7 +67,7 @@ h2,h3{ font-family:"Mulish", system-ui; font-weight:800; line-height:1.2; margin
 }
 .drawer__head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px }
 .drawer__list{ list-style:none; display:grid; gap:8px; margin:0; padding:0 }
-.drawer__list a{ display:block; padding:10px 12px; border-radius:10px; color:var(--ink); background:#ffffff12; border:1px solid #ffffff22 }
+.drawer__list .linklike{ background:#ffffff12; border:1px solid #ffffff22; padding:10px 12px; border-radius:10px; color:var(--ink); cursor:pointer }
 
 /* Toast */
 .toast[hidden]{ display:none }
