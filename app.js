@@ -1,4 +1,4 @@
-/* Velocité — inline routes, ES5-safe (no optional chaining / template strings) */
+/* Velocité — inline routes, ES5-safe, polished */
 
 (function () {
   var state = {
@@ -9,7 +9,6 @@
 
   var stage = document.getElementById('stage');
 
-  // ---------- Init ----------
   function init() {
     // Header controls
     var motionBtn = document.getElementById('motion-toggle');
@@ -28,6 +27,16 @@
         if (e.target && e.target.matches('[data-close]')) closeDrawer();
       });
     }
+
+    // Global ESC to close drawer or toast
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var d = document.getElementById('drawer');
+        if (d && !d.hidden) { closeDrawer(); return; }
+        var t = document.getElementById('toast');
+        if (t && !t.hidden) { hideToast(); return; }
+      }
+    });
 
     // Route links (buttons/anchors)
     document.addEventListener('click', function (e) {
@@ -52,7 +61,6 @@
     updateMotionUI();
   }
 
-  // ---------- Routing ----------
   function routeFromHash() {
     var h = (location.hash || '').trim();
     if (h.indexOf('#/') !== 0) return null;
@@ -75,10 +83,13 @@
         sections[i].hidden = sections[i] !== next;
       }
 
+      // topnav active + aria-current
       var navLinks = document.querySelectorAll('.topnav [data-route-link]');
       for (var j = 0; j < navLinks.length; j++) {
         var a = navLinks[j];
-        a.classList.toggle('is-active', a.getAttribute('data-route-link') === route);
+        var isActive = a.getAttribute('data-route-link') === route;
+        a.classList.toggle('is-active', isActive);
+        if (isActive) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
       }
 
       wireGallery();
@@ -96,7 +107,7 @@
     }
   }
 
-  // ---------- Motion toggle ----------
+  // Motion toggle
   function toggleMotion() {
     state.motion = !state.motion;
     localStorage.setItem('vx.motion', JSON.stringify(state.motion));
@@ -110,7 +121,7 @@
     if (label) label.textContent = 'Motion: ' + (state.motion ? 'On' : 'Off');
   }
 
-  // ---------- Drawer ----------
+  // Drawer
   function openDrawer() {
     var drawer = document.getElementById('drawer');
     if (!drawer) return;
@@ -128,7 +139,7 @@
     if (state.hasVT && state.motion) document.startViewTransition(hide); else hide();
   }
 
-  // ---------- Toast ----------
+  // Toast
   var toastTimer = null;
   function showToast() {
     var toast = document.getElementById('toast');
@@ -153,7 +164,7 @@
     if (close) close.addEventListener('click', hideToast);
   }
 
-  // ---------- Gallery niceties ----------
+  // Gallery niceties
   function wireGallery() {
     var btn = document.querySelector('[data-action="focus-card"]');
     var card = document.querySelector('[data-route="gallery"] #demo-card');
@@ -162,35 +173,47 @@
     });
   }
 
-  // ---------- Tabs ----------
+  // Tabs + arrow-key nav
   function wireTabs() {
-    var tabs = document.querySelector('[data-route="pattern-tabs"] .tabs');
-    if (!tabs) return;
+    var wrap = document.querySelector('[data-route="pattern-tabs"] .tabs');
+    if (!wrap) return;
 
-    var list = tabs.querySelector('.tabs__list');
+    var list = wrap.querySelector('.tabs__list');
     list.addEventListener('click', function (e) {
       var btn = e.target && e.target.closest ? e.target.closest('[role="tab"]') : null;
       if (!btn) return;
+      swapTo(btn);
+    });
 
+    list.addEventListener('keydown', function (e) {
+      var tabs = Array.prototype.slice.call(list.querySelectorAll('[role="tab"]'));
+      var idx = tabs.indexOf(document.activeElement);
+      if (idx < 0) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); tabs[(idx + 1) % tabs.length].focus(); }
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); tabs[(idx - 1 + tabs.length) % tabs.length].focus(); }
+      else if (e.key === 'Home') { e.preventDefault(); tabs[0].focus(); }
+      else if (e.key === 'End') { e.preventDefault(); tabs[tabs.length - 1].focus(); }
+    });
+
+    function swapTo(btn){
       var current = list.querySelector('[aria-selected="true"]');
       if (current === btn) return;
 
       var nextId = btn.getAttribute('aria-controls');
-      var next = tabs.querySelector('#' + nextId);
-      var prev = tabs.querySelector('.tabs__panel.is-active');
+      var next = wrap.querySelector('#'+nextId);
+      var prev = wrap.querySelector('.tabs__panel.is-active');
 
       var swap = function () {
         if (current) current.setAttribute('aria-selected', 'false');
         btn.setAttribute('aria-selected', 'true');
-        if (prev) { prev.setAttribute('hidden', ''); prev.classList.remove('is-active'); }
-        if (next) { next.removeAttribute('hidden'); next.classList.add('is-active'); }
+        if (prev){ prev.setAttribute('hidden',''); prev.classList.remove('is-active'); }
+        if (next){ next.removeAttribute('hidden'); next.classList.add('is-active'); }
       };
 
       if (state.hasVT && state.motion) document.startViewTransition(swap); else swap();
-    });
+    }
   }
 
-  // Go!
+  // go!
   init();
 })();
-
