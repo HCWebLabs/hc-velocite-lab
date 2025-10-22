@@ -4,7 +4,7 @@
   --pad:clamp(14px,2.2vw,24px); --max:1120px; --gap:clamp(12px,2.2vw,20px);
   --rad:16px;
 
-  /* Polish pack tokens */
+  /* polish tokens */
   --dur-1:160ms; --dur-2:220ms; --dur-3:320ms;
   --ease-out:cubic-bezier(.18,.84,.26,1);
   --ease-in:cubic-bezier(.32,0,.67,.03);
@@ -26,7 +26,6 @@ body::before{
   filter:saturate(110%) contrast(105%);
 }
 
-/* Layout */
 #vx .mast, #vx .stage, #vx .foot{ max-width:var(--max); margin:auto; padding:var(--pad) }
 #vx .mast{
   position:sticky; top:0; z-index:20;
@@ -38,9 +37,7 @@ body::before{
 #vx .brand .fa-bolt{ color:var(--aqua) }
 #vx .brand-name{ font-family:"Mulish", system-ui, sans-serif; font-weight:800; letter-spacing:.2px; font-size:18px; view-transition-name: brand }
 #vx .topnav a{ display:inline-block; padding:8px 12px; border-radius:999px; color:var(--ink); border:1px solid transparent }
-#vx .topnav a.is-active{
-  border-color:#ffffff29; background:#ffffff10; position:relative;
-}
+#vx .topnav a.is-active{ border-color:#ffffff29; background:#ffffff10; position:relative }
 #vx .topnav a.is-active::after{
   content:""; position:absolute; left:12px; right:12px; bottom:-3px; height:2px;
   background:linear-gradient(90deg, var(--aqua), var(--vio)); border-radius:2px;
@@ -51,13 +48,23 @@ body::before{
 #vx .stage{ min-height:60vh; view-transition-name: stage }
 .panel .hero{ margin-bottom:var(--pad) }
 
-/* H1 now Sansation Bold */
+/* H1: Sansation heavier + slightly smaller; H2 chunkier too */
 h1{
-  font-family:"Sansation", system-ui, sans-serif; font-weight:700;
-  font-size:clamp(36px,6.6vw,64px); letter-spacing:.4px; line-height:1.06; margin:.2em 0;
+  font-family:"Sansation", system-ui, sans-serif;
+  font-weight:900; /* fallbacks to 700 if 900 unavailable */
+  font-size:clamp(30px,5.2vw,54px); /* slightly smaller than before */
+  letter-spacing:.3px;
+  line-height:1.04; margin:.2em 0;
   view-transition-name: hero-title;
 }
-h2,h3{ font-family:"Mulish", system-ui; font-weight:800; line-height:1.2; margin:.2em 0 }
+h2{
+  font-family:"Sansation","Mulish", system-ui, sans-serif;
+  font-weight:900; letter-spacing:.2px; line-height:1.15;
+  font-size:clamp(20px,3.2vw,32px);
+  margin:.2em 0;
+}
+h3{ font-family:"Mulish", system-ui; font-weight:800; line-height:1.2; margin:.2em 0 }
+
 .lede{ color:var(--muted) }
 
 .grid.cards{ display:grid; gap:var(--gap); grid-template-columns:repeat(12, minmax(0,1fr)) }
@@ -65,6 +72,7 @@ h2,h3{ font-family:"Mulish", system-ui; font-weight:800; line-height:1.2; margin
 @media (min-width:760px){ .grid.cards > *{ grid-column: span 6 } }
 @media (min-width:1024px){ .grid.cards > *{ grid-column: span 3 } }
 
+/* Cards */
 .card, .detail{
   background:#0e1220cc; border:1px solid #ffffff12; border-radius:var(--rad); padding:var(--pad);
   backdrop-filter: blur(4px) saturate(115%); box-shadow:var(--elev-1);
@@ -74,6 +82,9 @@ h2,h3{ font-family:"Mulish", system-ui; font-weight:800; line-height:1.2; margin
 .card:hover{ transform: translateY(-2px); box-shadow:var(--elev-2); border-color:#ffffff2e }
 .card:active{ transform: translateY(0) }
 .card__img{ display:block; width:100%; height:auto; border-radius:12px; margin-bottom:10px }
+.card[data-route-link]{ cursor:pointer }
+.card[data-route-link]:focus-visible{ outline:2px solid var(--aqua); outline-offset:3px; border-radius:12px }
+
 .row{ display:flex; gap:10px; flex-wrap:wrap }
 .cta{
   display:inline-flex; align-items:center; gap:8px; padding:10px 14px;
@@ -82,6 +93,8 @@ h2,h3{ font-family:"Mulish", system-ui; font-weight:800; line-height:1.2; margin
 }
 .cta:hover{ transform: translateY(-1px); box-shadow: 0 8px 26px #000a; filter: saturate(1.05) }
 .cta:active{ transform: translateY(0) }
+
+.panel-head{ display:flex; gap:10px; align-items:center; margin-bottom:12px; flex-wrap:wrap }
 
 .bullets{ padding-left:1em }
 .bullets li{ margin:6px 0 }
@@ -118,7 +131,7 @@ h2,h3{ font-family:"Mulish", system-ui; font-weight:800; line-height:1.2; margin
 /* Footer */
 #vx .foot{ border-top:1px solid var(--line); color:var(--muted); font-size:14px; display:flex; align-items:center; gap:12px; justify-content:space-between; flex-wrap:wrap }
 
-/* View Transition tuning via tokens */
+/* View Transition tuning */
 ::view-transition-old(root), ::view-transition-new(root){ animation-duration: var(--dur-2); animation-timing-function: var(--ease-out) }
 ::view-transition-old(stage), ::view-transition-new(stage){ animation-duration: var(--dur-2); animation-timing-function: var(--ease-out) }
 ::view-transition-old(brand), ::view-transition-new(brand){ animation-duration: var(--dur-3) }
@@ -130,7 +143,7 @@ h2,h3{ font-family:"Mulish", system-ui; font-weight:800; line-height:1.2; margin
 #hero-title{ view-transition-name: hero-title }
 #demo-card{ view-transition-name: demo-card }
 
-/* Focus rings */
+/* Focus rings for interactive */
 :where(a, button):focus-visible{
   outline:2px solid var(--aqua);
   outline-offset:2px;
