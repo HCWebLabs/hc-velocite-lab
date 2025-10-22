@@ -21,14 +21,14 @@
         <i class="fa-solid fa-bars"></i><span class="sr-only">Open menu</span>
       </button>
 
-      <a class="brand" href="#/gallery" data-link>
+      <a class="brand" href="#/gallery" data-route-link="gallery">
         <i class="fa-solid fa-bolt"></i>
         <span class="brand-name">Velocité</span>
       </a>
 
       <nav class="topnav" aria-label="Primary">
-        <a href="#/gallery" data-link class="is-active">Gallery</a>
-        <a href="#/about" data-link>About</a>
+        <a href="#/gallery" data-route-link="gallery" class="is-active">Gallery</a>
+        <a href="#/about" data-route-link="about">About</a>
       </nav>
 
       <div class="tools">
@@ -52,10 +52,10 @@
           </button>
         </header>
         <ul class="drawer__list">
-          <li><a href="#/pattern/card" data-link>Card morph</a></li>
-          <li><a href="#/pattern/menu" data-link>Command menu</a></li>
-          <li><a href="#/pattern/toast" data-link>Toast</a></li>
-          <li><a href="#/pattern/tabs" data-link>Tabs (partial swap)</a></li>
+          <li><button class="linklike" data-route-link="pattern-card">Card morph</button></li>
+          <li><button class="linklike" data-route-link="pattern-menu">Command menu</button></li>
+          <li><button class="linklike" data-route-link="pattern-toast">Toast</button></li>
+          <li><button class="linklike" data-route-link="pattern-tabs">Tabs (partial swap)</button></li>
         </ul>
       </div>
     </aside>
@@ -69,8 +69,109 @@
       </div>
     </div>
 
-    <main id="stage" class="stage" tabindex="-1" aria-live="polite" aria-busy="false">
-      <!-- JS injects route content here -->
+    <!-- =========================
+         ROUTES INLINE (no templates)
+         ========================= -->
+    <main id="stage" class="stage" tabindex="-1" aria-live="polite">
+      <!-- GALLERY (default visible) -->
+      <section class="panel gallery" data-route="gallery">
+        <header class="hero">
+          <h1 id="hero-title">Micro-Interactions, Natively</h1>
+          <p class="lede">Tap a pattern to see a small but delightful transition. All effects are native — no animation libraries.</p>
+        </header>
+
+        <div class="grid cards">
+          <article id="demo-card" class="card loud">
+            <img class="card__img" src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1200&auto=format&fit=crop" alt="">
+            <h3>Card morph</h3>
+            <p>Click to expand into a detail view with shared image/title.</p>
+            <div class="row">
+              <button class="cta" data-route-link="pattern-card">Open</button>
+              <button class="ghost" data-action="focus-card">Focus</button>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Command menu</h3>
+            <p>Slide a drawer over a blurred backdrop. Try the top-left menu icon.</p>
+            <button class="cta ghost" data-route-link="pattern-menu">Show pattern</button>
+          </article>
+
+          <article class="card">
+            <h3>Toast</h3>
+            <p>A tiny, classy status bubble that enters/exits with VT.</p>
+            <button class="cta ghost" data-route-link="pattern-toast">Show pattern</button>
+          </article>
+
+          <article class="card">
+            <h3>Tabs (partial swap)</h3>
+            <p>Only the tab panel transitions; the rest of the page stays anchored.</p>
+            <button class="cta ghost" data-route-link="pattern-tabs">Show pattern</button>
+          </article>
+        </div>
+      </section>
+
+      <!-- ABOUT -->
+      <section class="panel" data-route="about" hidden>
+        <header class="hero">
+          <h1 id="hero-title">About Velocité</h1>
+          <p class="lede">A compact gallery of native patterns showing how to compose transitions, scope them, and keep a11y intact.</p>
+        </header>
+        <ul class="bullets">
+          <li>Graceful fallback when View Transitions are unavailable.</li>
+          <li><code>prefers-reduced-motion</code> respected.</li>
+          <li>Simple router using hash and view transitions.</li>
+        </ul>
+      </section>
+
+      <!-- PATTERN: CARD -->
+      <section class="panel pattern-card" data-route="pattern-card" hidden>
+        <button class="ghost back" data-route-link="gallery"><i class="fa-solid fa-arrow-left"></i> Back</button>
+        <article id="demo-card" class="detail">
+          <img class="card__img" src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1600&auto=format&fit=crop" alt="">
+          <div class="detail__body">
+            <h2>Shared-Element Morph</h2>
+            <p>The grid card’s image/title share transition names with the detail view, so they scale and crossfade smoothly.</p>
+            <p><button class="cta" data-route-link="gallery">Close</button></p>
+          </div>
+        </article>
+      </section>
+
+      <!-- PATTERN: MENU -->
+      <section class="panel pattern-menu" data-route="pattern-menu" hidden>
+        <h2>Command Menu</h2>
+        <p>Use the menu button in the header. The backdrop and sheet have named view-transition regions.</p>
+      </section>
+
+      <!-- PATTERN: TOAST -->
+      <section class="panel pattern-toast" data-route="pattern-toast" hidden>
+        <h2>Toast</h2>
+        <p>Press the bell icon to show a toast. It enters/exits with a small shared element animation.</p>
+        <button id="show-toast" class="cta"><i class="fa-regular fa-bell"></i> Show toast</button>
+      </section>
+
+      <!-- PATTERN: TABS -->
+      <section class="panel pattern-tabs" data-route="pattern-tabs" hidden>
+        <h2>Tabs</h2>
+        <div class="tabs" id="tabs">
+          <div class="tabs__list" role="tablist" aria-label="Demo tabs">
+            <button role="tab" aria-selected="true" aria-controls="panel-a" id="tab-a">Overview</button>
+            <button role="tab" aria-selected="false" aria-controls="panel-b" id="tab-b">Specs</button>
+            <button role="tab" aria-selected="false" aria-controls="panel-c" id="tab-c">Notes</button>
+          </div>
+          <div class="tabs__panels" id="panels">
+            <section id="panel-a" class="tabs__panel is-active" role="tabpanel" tabindex="0">
+              <p>Only this panel transitions — the header and chrome remain fixed.</p>
+            </section>
+            <section id="panel-b" class="tabs__panel" role="tabpanel" tabindex="0" hidden>
+              <ul class="bullets"><li>Panel swaps via <code>startViewTransition</code> scoped to panel area.</li><li>Named <code>view-transition-name: tab-panel</code>.</li></ul>
+            </section>
+            <section id="panel-c" class="tabs__panel" role="tabpanel" tabindex="0" hidden>
+              <p>Progressive enhancement keeps content readable without VT.</p>
+            </section>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="foot" role="contentinfo">
@@ -79,113 +180,6 @@
       </p>
     </footer>
   </div>
-
-  <!-- ROUTE TEMPLATES -->
-  <template id="tpl-gallery">
-    <section data-route="gallery" class="panel gallery">
-      <header class="hero">
-        <h1 id="hero-title">Micro-Interactions, Natively</h1>
-        <p class="lede">Tap a pattern to see a small but delightful transition. All effects are native — no animation libraries.</p>
-      </header>
-
-      <div class="grid cards">
-        <article id="demo-card" class="card loud">
-          <img class="card__img" src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1200&auto=format&fit=crop" alt="">
-          <h3>Card morph</h3>
-          <p>Click to expand into a detail view with shared image/title.</p>
-          <div class="row">
-            <a href="#/pattern/card" data-link class="cta">Open</a>
-            <button class="ghost" data-action="focus-card">Focus</button>
-          </div>
-        </article>
-
-        <article class="card">
-          <h3>Command menu</h3>
-          <p>Slide a drawer over a blurred backdrop. Try the top-left menu icon.</p>
-          <a href="#/pattern/menu" data-link class="cta ghost">Show pattern</a>
-        </article>
-
-        <article class="card">
-          <h3>Toast</h3>
-          <p>A tiny, classy status bubble that enters/exits with VT.</p>
-          <a href="#/pattern/toast" data-link class="cta ghost">Show pattern</a>
-        </article>
-
-        <article class="card">
-          <h3>Tabs (partial swap)</h3>
-          <p>Only the tab panel transitions; the rest of the page stays anchored.</p>
-          <a href="#/pattern/tabs" data-link class="cta ghost">Show pattern</a>
-        </article>
-      </div>
-    </section>
-  </template>
-
-  <template id="tpl-about">
-    <section data-route="about" class="panel">
-      <header class="hero">
-        <h1 id="hero-title">About Velocité</h1>
-        <p class="lede">A compact gallery of native patterns showing how to compose transitions, scope them, and keep a11y intact.</p>
-      </header>
-      <ul class="bullets">
-        <li>Graceful fallback when View Transitions are unavailable.</li>
-        <li><code>prefers-reduced-motion</code> respected.</li>
-        <li>Simple hash routing for same-document swaps.</li>
-      </ul>
-    </section>
-  </template>
-
-  <template id="tpl-pattern-card">
-    <section class="panel pattern-card">
-      <a class="ghost back" data-link href="#/gallery"><i class="fa-solid fa-arrow-left"></i> Back</a>
-      <article id="demo-card" class="detail">
-        <img class="card__img" src="https://images.unsplash.com/photo-1606813907291-76a89b9cb1cd?q=80&w=1600&auto=format&fit=crop" alt="">
-        <div class="detail__body">
-          <h2>Shared-Element Morph</h2>
-          <p>The grid card’s image/title share transition names with the detail view, so they scale and crossfade smoothly.</p>
-          <p><a class="cta" data-link href="#/gallery">Close</a></p>
-        </div>
-      </article>
-    </section>
-  </template>
-
-  <template id="tpl-pattern-menu">
-    <section class="panel pattern-menu">
-      <h2>Command Menu</h2>
-      <p>Use the menu button in the header. The backdrop and sheet have named view-transition regions.</p>
-    </section>
-  </template>
-
-  <template id="tpl-pattern-toast">
-    <section class="panel pattern-toast">
-      <h2>Toast</h2>
-      <p>Press the bell icon to show a toast. It enters/exits with a small shared element animation.</p>
-      <button id="show-toast" class="cta"><i class="fa-regular fa-bell"></i> Show toast</button>
-    </section>
-  </template>
-
-  <template id="tpl-pattern-tabs">
-    <section class="panel pattern-tabs">
-      <h2>Tabs</h2>
-      <div class="tabs" id="tabs">
-        <div class="tabs__list" role="tablist" aria-label="Demo tabs">
-          <button role="tab" aria-selected="true" aria-controls="panel-a" id="tab-a">Overview</button>
-          <button role="tab" aria-selected="false" aria-controls="panel-b" id="tab-b">Specs</button>
-          <button role="tab" aria-selected="false" aria-controls="panel-c" id="tab-c">Notes</button>
-        </div>
-        <div class="tabs__panels" id="panels">
-          <section id="panel-a" class="tabs__panel is-active" role="tabpanel" tabindex="0">
-            <p>Only this panel transitions — the header and chrome remain fixed.</p>
-          </section>
-          <section id="panel-b" class="tabs__panel" role="tabpanel" tabindex="0" hidden>
-            <ul class="bullets"><li>Panel swaps via <code>startViewTransition</code> scoped to panel area.</li><li>Named <code>view-transition-name: tab-panel</code>.</li></ul>
-          </section>
-          <section id="panel-c" class="tabs__panel" role="tabpanel" tabindex="0" hidden>
-            <p>Progressive enhancement keeps content readable without VT.</p>
-          </section>
-        </div>
-      </div>
-    </section>
-  </template>
 
   <script src="./app.js" type="module"></script>
 </body>
